@@ -41,8 +41,7 @@ class ResPartner(models.Model):
                 version[field] = parent_id
             elif self[field]:
                 version[field] = self[field]
-        version_hash = hashlib.md5(str(version).encode("utf-8")).hexdigest()
-        return version_hash
+        return hashlib.md5(str(version).encode("utf-8")).hexdigest()
 
     def _version_impacted_tables(self):
         """

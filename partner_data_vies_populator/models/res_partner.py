@@ -24,7 +24,7 @@ class ResPartner(models.Model):
         try:
             result = check_vies(vat)
         except Exception as e:
-            _logger.warning("Failed to query VIES: %s" % e)
+            _logger.warning(f"Failed to query VIES: {e}")
             if raise_if_fail:
                 raise UserError(_("Failed to query VIES.\nTechnical error: %s.") % e)
             return res
@@ -38,27 +38,24 @@ class ResPartner(models.Model):
                 res["street"] = (
                     result.address.replace("\n", " ").replace("\r", "").title()
                 )
-            # Get country by country code
-            country = self.env["res.country"].search(
+            if country := self.env["res.country"].search(
                 [("code", "ilike", result.countryCode)]
-            )
-            if country:
+            ):
                 res["country_id"] = country[0].id
         return res
 
     @api.onchange("vat")
     def vies_vat_change(self):
-        eu_group = self.env.ref("base.europe", raise_if_not_found=False)
-        if eu_group:
-            for partner in self:
-                if not partner.vat or not partner.is_company:
-                    continue
-                vat = partner.vat.strip().upper()
-                vat_country, vat_number = self._split_vat(vat)
-                vat_country = vat_country.upper()
-                eu_countries = eu_group.country_ids.mapped("code")
-                if vat_country and vat_country not in eu_countries:
-                    continue
-                result = self._get_vies_data(vat)
-                if result:
-                    partner.update(result)
+        if not (eu_group := self.env.ref("base.europe", raise_if_not_found=False)):
+            return
+        for partner in self:
+            if not partner.vat or not partner.is_company:
+                continue
+            vat = partner.vat.strip().upper()
+            vat_country, vat_number = self._split_vat(vat)
+            vat_country = vat_country.upper()
+            eu_countries = eu_group.country_ids.mapped("code")
+            if vat_country and vat_country not in eu_countries:
+                continue
+            if result := self._get_vies_data(vat):
+                partner.update(result)

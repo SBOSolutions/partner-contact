@@ -63,7 +63,6 @@ class ResPartner(models.Model):
     @api.model
     def _search_relation_type_id(self, operator, value):
         """Search partners based on their type of relations."""
-        result = []
         SUPPORTED_OPERATORS = (
             "=",
             "!=",
@@ -94,8 +93,7 @@ class ResPartner(models.Model):
                     ("type_id.name_inverse", operator, value),
                 ]
             )
-        if not relation_type_selection:
-            result = [FALSE_LEAF]
+        result = [] if relation_type_selection else [FALSE_LEAF]
         for relation_type in relation_type_selection:
             result = OR(
                 [

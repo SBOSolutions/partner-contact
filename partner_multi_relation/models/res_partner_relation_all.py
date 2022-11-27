@@ -216,12 +216,7 @@ CREATE OR REPLACE VIEW %%(table)s AS
 
     def name_get(self):
         return {
-            this.id: "%s %s %s"
-            % (
-                this.this_partner_id.name,
-                this.type_selection_id.display_name,
-                this.other_partner_id.name,
-            )
+            this.id: f"{this.this_partner_id.name} {this.type_selection_id.display_name} {this.other_partner_id.name}"
             for this in self
         }
 
@@ -402,8 +397,7 @@ CREATE OR REPLACE VIEW %%(table)s AS
         """Get type_selection_id straight from vals or compute from type_id."""
         type_selection_id = vals.get("type_selection_id", False)
         if not type_selection_id:
-            type_id = vals.get("type_id", False)
-            if type_id:
+            if type_id := vals.get("type_id", False):
                 is_inverse = vals.get("is_inverse")
                 type_selection_id = type_id * 2 + (is_inverse and 1 or 0)
         return (

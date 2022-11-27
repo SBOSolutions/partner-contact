@@ -57,9 +57,10 @@ class Contact(models.Model):
                 lambda cm: cm.property_product_pricelist
                 != self.property_product_pricelist
             )
-            members_str = ""
-            for member in company_members:
-                members_str += "\t- %s\n" % member.display_name
+            members_str = "".join(
+                "\t- %s\n" % member.display_name for member in company_members
+            )
+
             res["warning"] = {
                 "title": _("Warning"),
                 "message": _(

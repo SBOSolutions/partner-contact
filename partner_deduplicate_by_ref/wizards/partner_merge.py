@@ -18,8 +18,8 @@ class BasePartnerMergeAutomaticWizard(models.TransientModel):
         if "ref" in fields:
             if "WHERE" in query:
                 index = query.find("WHERE")
-                query = query[: index + 6] + "ref IS NOT NULL AND " + query[index + 6 :]
+                query = f"{query[:index + 6]}ref IS NOT NULL AND {query[index + 6:]}"
             else:
                 index = query.find(" GROUP BY")
-                query = query[:index] + " WHERE ref IS NOT NULL" + query[index:]
+                query = f"{query[:index]} WHERE ref IS NOT NULL{query[index:]}"
         return query

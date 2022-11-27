@@ -36,8 +36,8 @@ class TestPartnerExternalMap(common.TransactionCase):
         # Call this again for coverage purposes, but it has been already run
         set_default_map_settings(self.cr, self.registry)
         usrs = self.env["res.users"].search([])
-        self.assertTrue(all([u.context_map_website_id.id for u in usrs]))
-        self.assertTrue(all([u.context_route_map_website_id.id for u in usrs]))
+        self.assertTrue(all(u.context_map_website_id.id for u in usrs))
+        self.assertTrue(all(u.context_route_map_website_id.id for u in usrs))
         self.assertEqual(
             self.env.user.partner_id, self.env.user.context_route_start_partner_id
         )

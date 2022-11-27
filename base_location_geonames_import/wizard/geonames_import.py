@@ -93,17 +93,15 @@ class CityZipGeonamesImport(models.TransientModel):
 
     @api.model
     def prepare_city(self, row, country, state_id):
-        vals = {
+        return {
             "name": self.transform_city_name(row[2], country),
             "state_id": state_id,
             "country_id": country.id,
         }
-        return vals
 
     @api.model
     def prepare_zip(self, row, city_id):
-        vals = {"name": row[1], "city_id": city_id}
-        return vals
+        return {"name": row[1], "city_id": city_id}
 
     @api.model
     def get_and_parse_csv(self, country):
@@ -112,7 +110,7 @@ class CityZipGeonamesImport(models.TransientModel):
             "geonames.url", default="http://download.geonames.org/export/zip/%s.zip"
         )
         url = config_url % country_code
-        logger.info("Starting to download %s" % url)
+        logger.info(f"Starting to download {url}")
         res_request = requests.get(url)
         if res_request.status_code != requests.codes.ok:
             raise UserError(
@@ -122,15 +120,12 @@ class CityZipGeonamesImport(models.TransientModel):
 
         f_geonames = zipfile.ZipFile(io.BytesIO(res_request.content))
         tempdir = tempfile.mkdtemp(prefix="odoo")
-        f_geonames.extract("%s.txt" % country_code, tempdir)
+        f_geonames.extract(f"{country_code}.txt", tempdir)
 
-        data_file = open(
-            os.path.join(tempdir, "%s.txt" % country_code), "r", encoding="utf-8"
-        )
-        data_file.seek(0)
-        reader = csv.reader(data_file, delimiter="	")
-        parsed_csv = [row for i, row in enumerate(reader)]
-        data_file.close()
+        with open(os.path.join(tempdir, f"{country_code}.txt"), "r", encoding="utf-8") as data_file:
+            data_file.seek(0)
+            reader = csv.reader(data_file, delimiter="	")
+            parsed_csv = list(reader)
         logger.info("The geonames zipfile has been decompressed")
         return parsed_csv
 
@@ -192,7 +187,7 @@ class CityZipGeonamesImport(models.TransientModel):
         model = self.env[model_name]
         items = model.browse(list(old_records))
         try:
-            logger.info("removing %s entries" % model._name)
+            logger.info(f"removing {model._name} entries")
             items.unlink()
             logger.info(
                 "%d entries deleted for country %s" % (len(old_records), country.name)

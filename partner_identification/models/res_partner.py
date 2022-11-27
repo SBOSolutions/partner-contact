@@ -106,22 +106,18 @@ class ResPartner(models.Model):
                     continue
                 category = self.env["res.partner.id_category"].search(
                     [("code", "=", category_code)]
+                ) or self.env["res.partner.id_category"].create(
+                    {"code": category_code, "name": category_code}
                 )
-                if not category:
-                    category = self.env["res.partner.id_category"].create(
-                        {"code": category_code, "name": category_code}
-                    )
+
                 self.env["res.partner.id_number"].create(
                     {"partner_id": record.id, "category_id": category.id, "name": name}
                 )
-            # There was an identification record singleton found.
             elif record_len == 1:
-                value = record[field_name]
-                if value:
+                if value := record[field_name]:
                     id_number.name = value
                 else:
                     id_number.active = False
-            # Guard against writing wrong records.
             else:
                 raise ValidationError(
                     _(

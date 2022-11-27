@@ -31,7 +31,7 @@ class BaseCase(TransactionCase, MailInstalled):
         """Define what is expected in each field when ending."""
         self.lastname = lastname
         self.firstname = firstname
-        self.name = name or "{} {}".format(firstname, lastname)
+        self.name = name or f"{firstname} {lastname}"
 
     def tearDown(self):
         if self.check_fields:
@@ -42,8 +42,9 @@ class BaseCase(TransactionCase, MailInstalled):
                 self.assertEqual(
                     self.changed[field],
                     getattr(self, field),
-                    "Test failed with wrong %s" % field,
+                    f"Test failed with wrong {field}",
                 )
+
 
         super(BaseCase, self).tearDown()
 
@@ -51,9 +52,9 @@ class BaseCase(TransactionCase, MailInstalled):
         """Copy the partner and compare the result."""
         self.changed = self.original.with_context(lang="en_US").copy()
         if self.changed.is_company:
-            self.expect("%s (copy)" % self.lastname, self.firstname)
+            self.expect(f"{self.lastname} (copy)", self.firstname)
         else:
-            self.expect(self.lastname, "%s (copy)" % self.firstname)
+            self.expect(self.lastname, f"{self.firstname} (copy)")
 
     def test_one_name(self):
         """Test what happens when only one name is given."""

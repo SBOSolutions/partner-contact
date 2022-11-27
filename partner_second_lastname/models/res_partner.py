@@ -25,7 +25,7 @@ class ResPartner(models.Model):
         comma.
         """
         order = self._get_names_order()
-        names = list()
+        names = []
         if order == "first_last":
             if firstname:
                 names.append(firstname)
@@ -39,7 +39,7 @@ class ResPartner(models.Model):
             if lastname2:
                 names.append(lastname2)
             if names and firstname and order == "last_first_comma":
-                names[-1] = names[-1] + ","
+                names[-1] = f"{names[-1]},"
             if firstname:
                 names.append(firstname)
         return " ".join(names)
@@ -62,9 +62,9 @@ class ResPartner(models.Model):
         before, after = {}, {}
         for key, value in parts.items():
             (before if value else after)[key] = value
-        if any([before[k] != self[k] for k in list(before.keys())]):
+        if any(before[k] != self[k] for k in list(before.keys())):
             self.update(before)
-        if any([after[k] != self[k] for k in list(after.keys())]):
+        if any(after[k] != self[k] for k in list(after.keys())):
             self.update(after)
 
     @api.model
@@ -85,18 +85,15 @@ class ResPartner(models.Model):
             return result
 
         order = self._get_names_order()
-        result.update(super(ResPartner, self)._get_inverse_name(name, is_company))
+        result |= super(ResPartner, self)._get_inverse_name(name, is_company)
 
         if order in ("first_last", "last_first_comma"):
-            parts = self._split_part("lastname", result)
-            if parts:
+            if parts := self._split_part("lastname", result):
                 result.update({"lastname": parts[0], "lastname2": " ".join(parts[1:])})
-        else:
-            parts = self._split_part("firstname", result)
-            if parts:
-                result.update(
-                    {"firstname": parts[-1], "lastname2": " ".join(parts[:-1])}
-                )
+        elif parts := self._split_part("firstname", result):
+            result.update(
+                {"firstname": parts[-1], "lastname2": " ".join(parts[:-1])}
+            )
         return result
 
     def _split_part(self, name_part, name_split):
@@ -110,9 +107,7 @@ class ResPartner(models.Model):
         """
         name = name_split.get(name_part, False)
         parts = name.split(" ", 1) if name else []
-        if not name or len(parts) < 2:
-            return False
-        return parts
+        return False if not name or len(parts) < 2 else parts
 
     @api.constrains("firstname", "lastname", "lastname2")
     def _check_name(self):

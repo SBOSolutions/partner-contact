@@ -14,26 +14,27 @@ class ResPartner(models.Model):
 
     @api.constrains("mobile")
     def _check_mobile_unique(self):
-        if self.env.company.partner_mobile_unique_filter_duplicates:
-            for partner in self:
-                if partner.mobile:
-                    domain = [("mobile", "=", partner.mobile)]
-                    if partner.company_id:
-                        domain += [
-                            "|",
-                            ("company_id", "=", False),
-                            ("company_id", "=", partner.company_id.id),
-                        ]
-                    partner_id = partner._origin.id
-                    if partner_id:
-                        domain += [
-                            ("id", "!=", partner.id),
-                        ]
-                    if self.search(domain):
-                        raise UserError(
-                            _(
-                                "The mobile number is already exists for another partner."
-                                " This is not supported when duplicate mobile numbers are "
-                                "not allowed."
-                            )
+        if not self.env.company.partner_mobile_unique_filter_duplicates:
+            return
+        for partner in self:
+            if partner.mobile:
+                domain = [("mobile", "=", partner.mobile)]
+                if partner.company_id:
+                    domain += [
+                        "|",
+                        ("company_id", "=", False),
+                        ("company_id", "=", partner.company_id.id),
+                    ]
+                partner_id = partner._origin.id
+                if partner_id:
+                    domain += [
+                        ("id", "!=", partner.id),
+                    ]
+                if self.search(domain):
+                    raise UserError(
+                        _(
+                            "The mobile number is already exists for another partner."
+                            " This is not supported when duplicate mobile numbers are "
+                            "not allowed."
                         )
+                    )

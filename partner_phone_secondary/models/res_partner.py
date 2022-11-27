@@ -12,6 +12,5 @@ class ResPartner(models.Model):
     @api.onchange("phone2", "country_id", "company_id")
     def _onchange_phone2_validation(self):
         # Compatibility with phone_validation
-        if hasattr(self, "phone_format"):
-            if self.phone2:
-                self.phone2 = self.phone_format(self.phone2)
+        if hasattr(self, "phone_format") and self.phone2:
+            self.phone2 = self.phone_format(self.phone2)

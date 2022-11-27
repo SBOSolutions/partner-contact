@@ -43,12 +43,7 @@ class ResPartnerIdCategory(models.Model):
         cat = self.env.ref(
             "partner_identification_gln." "partner_identification_gln_number_category"
         ).id
-        duplicate_gln = self._search_duplicate(cat, id_number, True)
-
-        if duplicate_gln:
-            return True
-
-        return False
+        return bool(duplicate_gln := self._search_duplicate(cat, id_number, True))
 
     def validate_res_partner_gcp(self, id_number):
         self.ensure_one()
@@ -61,9 +56,4 @@ class ResPartnerIdCategory(models.Model):
         cat = self.env.ref(
             "partner_identification_gln." "partner_identification_gcp_number_category"
         ).id
-        duplicate_gln = self._search_duplicate(cat, id_number)
-
-        if duplicate_gln:
-            return True
-
-        return False
+        return bool(duplicate_gln := self._search_duplicate(cat, id_number))

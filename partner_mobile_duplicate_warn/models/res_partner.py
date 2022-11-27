@@ -30,8 +30,7 @@ class ResPartner(models.Model):
                         ("company_id", "=", False),
                         ("company_id", "=", partner.company_id.id),
                     ]
-                partner_id = partner._origin.id
-                if partner_id:
+                if partner_id := partner._origin.id:
                     domain.append(("id", "!=", partner_id))
                 same_mobile_partner = self.with_context(active_test=False).search(
                     domain, limit=1

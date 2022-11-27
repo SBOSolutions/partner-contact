@@ -89,26 +89,20 @@ class ResPartnerRelationType(models.Model):
 
         def get_type_condition(vals, side):
             """Add if needed check for contact type."""
-            fieldname1 = "contact_type_%s" % side
-            fieldname2 = "%s_partner_id.is_company" % side
+            fieldname1 = f"contact_type_{side}"
+            fieldname2 = f"{side}_partner_id.is_company"
             contact_type = fieldname1 in vals and vals[fieldname1] or False
             if contact_type == "c":
                 # Records that are not companies are invalid:
                 return [(fieldname2, "=", False)]
-            if contact_type == "p":
-                # Records that are companies are invalid:
-                return [(fieldname2, "=", True)]
-            return []
+            return [(fieldname2, "=", True)] if contact_type == "p" else []
 
         def get_category_condition(vals, side):
             """Add if needed check for partner category."""
-            fieldname1 = "partner_category_%s" % side
-            fieldname2 = "%s_partner_id.category_id" % side
+            fieldname1 = f"partner_category_{side}"
+            fieldname2 = f"{side}_partner_id.category_id"
             category_id = fieldname1 in vals and vals[fieldname1] or False
-            if category_id:
-                # Records that do not have the specified category are invalid:
-                return [(fieldname2, "not in", [category_id])]
-            return []
+            return [(fieldname2, "not in", [category_id])] if category_id else []
 
         for this in self:
             handling = (
@@ -165,8 +159,7 @@ class ResPartnerRelationType(models.Model):
     def _check_no_existing_reflexive_relations(self):
         """Check that no reflexive relation exists for these relation types."""
         for relation_type in self:
-            relations = relation_type._get_reflexive_relations()
-            if relations:
+            if relations := relation_type._get_reflexive_relations():
                 raise ValidationError(
                     _(
                         "Reflexivity could not be disabled for the relation "

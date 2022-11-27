@@ -89,9 +89,7 @@ class NutsImport(models.TransientModel):
     current_country_id = fields.Many2one("res.country")
 
     def _check_node(self, node):
-        if node.get("id") and node.get("idLevel"):
-            return True
-        return False
+        return bool(node.get("id") and node.get("idLevel"))
 
     def _mapping(self, node):
         item = {}
@@ -101,27 +99,19 @@ class NutsImport(models.TransientModel):
             field_type = v.get("type", "string")
             field_required = v.get("required", False)
             value = ""
-            if field_xpath:
-                n = node.find(field_xpath)
-            else:
-                n = node
+            n = node.find(field_xpath) if field_xpath else node
             if n is not None:
-                if field_attrib:
-                    value = n.get(field_attrib, "")
-                else:
-                    value = n.text
+                value = n.get(field_attrib, "") if field_attrib else n.text
                 if field_type == "integer":
                     try:
                         value = int(value)
                     except (ValueError, TypeError):
-                        logger.warning(
-                            "Value {} for field {} replaced by 0".format(value, k)
-                        )
+                        logger.warning(f"Value {value} for field {k} replaced by 0")
                         value = 0
             else:
                 logger.debug("xpath = '%s', not found" % field_xpath)
             if field_required and not value:
-                raise UserError(_("Value not found for mandatory field %s" % k))
+                raise UserError(_(f"Value not found for mandatory field {k}"))
             item[k] = value
         return item
 
@@ -133,8 +123,8 @@ class NutsImport(models.TransientModel):
         if not url_params:
             url_params = URL_PARAMS
         url = url_base + url_path + "?"
-        url += "&".join([k + "=" + v for k, v in url_params.items()])
-        logger.info("Starting to download %s" % url)
+        url += "&".join([f"{k}={v}" for k, v in url_params.items()])
+        logger.info(f"Starting to download {url}")
         try:
             res_request = requests.get(url)
         except Exception as e:

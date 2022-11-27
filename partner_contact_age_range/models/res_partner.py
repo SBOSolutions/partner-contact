@@ -18,10 +18,8 @@ class ResPartner(models.Model):
     def _compute_age_range_id(self):
         age_ranges = self.env["res.partner.age.range"].search([])
         for record in self:
-            if not record.age:
-                age_range = False
-            else:
-                age_range = (
+            age_range = (
+                (
                     age_ranges.filtered(
                         lambda age_range: age_range.age_from
                         <= record.age
@@ -29,6 +27,10 @@ class ResPartner(models.Model):
                     )
                     or False
                 )
+                if record.age
+                else False
+            )
+
             if record.age_range_id != age_range:
                 record.age_range_id = age_range and age_range.id or age_range
 

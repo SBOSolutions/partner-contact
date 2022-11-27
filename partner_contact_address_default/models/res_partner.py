@@ -30,11 +30,10 @@ class ResPartner(models.Model):
         }
         for partner in self:
             for addr_type in default_address_type_list:
-                default_address_id = (
-                    partner["partner_{}_id".format(addr_type)]
-                    or partner.commercial_partner_id["partner_{}_id".format(addr_type)]
-                )
-                if default_address_id:
+                if (
+                    default_address_id := partner[f"partner_{addr_type}_id"]
+                    or partner.commercial_partner_id[f"partner_{addr_type}_id"]
+                ):
                     res[addr_type] = default_address_id.id
         return res
 

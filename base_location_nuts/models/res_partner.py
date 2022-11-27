@@ -42,8 +42,7 @@ class ResPartner(models.Model):
         for partner in self:
             domain = []
             for level in range(1, 4):
-                nuts = partner["nuts%d_id" % level]
-                if nuts:
+                if nuts := partner["nuts%d_id" % level]:
                     domain = OR(
                         [
                             domain,
@@ -63,8 +62,7 @@ class ResPartner(models.Model):
         if state_id and self.state_id != state_id:
             self.state_id = state_id
         if level > 1:
-            parent_id = field.parent_id
-            if parent_id:
+            if parent_id := field.parent_id:
                 nuts_parent_level = "nuts%d_id" % (level - 1)
                 parent_field = self[nuts_parent_level]
                 if parent_field != parent_id:
@@ -106,14 +104,13 @@ class ResPartner(models.Model):
         if self.state_id:
             self.country_id = self.state_id.country_id
             if self.country_id.state_level:
-                nuts_state = self.env["res.partner.nuts"].search(
+                if nuts_state := self.env["res.partner.nuts"].search(
                     [
                         ("level", "=", self.country_id.state_level),
                         ("state_id", "=", self.state_id.id),
                     ],
                     limit=1,
-                )
-                if nuts_state:
+                ):
                     field = "nuts%d_id" % self.country_id.state_level
                     self[field] = nuts_state
 
