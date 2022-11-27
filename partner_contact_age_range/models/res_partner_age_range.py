@@ -10,13 +10,15 @@ class ResPartnerDateRange(models.Model):
     _description = "Partner Age Range"
 
     def _default_age_from(self):
-        age_from = 0
-        last_age_range = self.env["res.partner.age.range"].search(
-            [], order="age_to desc", limit=1
+        return (
+            last_age_range.age_to + 1
+            if (
+                last_age_range := self.env["res.partner.age.range"].search(
+                    [], order="age_to desc", limit=1
+                )
+            )
+            else 0
         )
-        if last_age_range:
-            age_from = last_age_range.age_to + 1
-        return age_from
 
     name = fields.Char(string="Name", required=True)
     age_from = fields.Integer(
@@ -34,15 +36,14 @@ class ResPartnerDateRange(models.Model):
                     _("%s is not a valid range (%s >= %s)")
                     % (rec.name, rec.age_from, rec.age_to)
                 )
-            range_id = rec.search(
+            if range_id := rec.search(
                 [
                     ("age_from", "<=", rec.age_to),
                     ("age_to", ">=", rec.age_from),
                     ("id", "!=", rec.id),
                 ],
                 limit=1,
-            )
-            if range_id:
+            ):
                 raise ValidationError(
                     _("%s is overalapping with range %s") % (rec.name, range_id.name)
                 )

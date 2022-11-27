@@ -20,10 +20,8 @@ class BasePartnerMergeAutomaticWizard(models.TransientModel):
         if "website" in fields:
             if "WHERE" in query:
                 index = query.find("WHERE")
-                query = (
-                    query[: index + 6] + "website IS NOT NULL AND " + query[index + 6 :]
-                )
+                query = f"{query[:index + 6]}website IS NOT NULL AND {query[index + 6:]}"
             else:
                 index = query.find(" GROUP BY")
-                query = query[:index] + " WHERE website IS NOT NULL" + query[index:]
+                query = f"{query[:index]} WHERE website IS NOT NULL{query[index:]}"
         return query

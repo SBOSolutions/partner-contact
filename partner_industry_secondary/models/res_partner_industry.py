@@ -56,5 +56,5 @@ class ResPartnerIndustry(models.Model):
     def copy(self, default=None):
         default = default or {}
         if "name" not in default or default["name"] == self.name:
-            default["name"] = self.name + " 2"
+            default["name"] = f"{self.name} 2"
         return super(ResPartnerIndustry, self).copy(default=default)

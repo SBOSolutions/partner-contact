@@ -35,13 +35,13 @@ class ResPartner(models.Model):
     @api.depends("state_id", "country_id", "city_id", "zip")
     def _compute_zip_id(self):
         """Empty the zip auto-completion field if data mismatch when on UI."""
+        fields_map = {
+            "zip": "name",
+            "city_id": "city_id",
+            "state_id": "state_id",
+            "country_id": "country_id",
+        }
         for record in self.filtered("zip_id"):
-            fields_map = {
-                "zip": "name",
-                "city_id": "city_id",
-                "state_id": "state_id",
-                "country_id": "country_id",
-            }
             for rec_field, zip_field in fields_map.items():
                 if (
                     record[rec_field]

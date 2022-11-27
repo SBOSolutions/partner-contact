@@ -23,8 +23,7 @@ class ResPartner(models.Model):
         category_group = "partner_category_security.group_partner_category_user"
         if view_type == "form" and not self.env.user.has_group(category_group):
             doc = etree.XML(result["arch"])
-            nodes = doc.xpath("//field[@name='category_id']")
-            if nodes:
+            if nodes := doc.xpath("//field[@name='category_id']"):
                 nodes[0].set("readonly", "1")
                 nodes[0].set("force_save", "1")
                 modifiers = {}

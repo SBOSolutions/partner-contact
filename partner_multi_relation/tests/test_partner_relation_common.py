@@ -69,14 +69,16 @@ class TestPartnerRelationCommon(common.TransactionCase):
 
     def _create_relation_type_selection(self, vals):
         """Create relation type and return this with selection types."""
-        assert "name" in vals, (
-            "Name missing in vals to create relation type. Vals: %s." % vals
-        )
-        assert "name" in vals, (
-            "Name_inverse missing in vals to create relation type. Vals: %s." % vals
-        )
+        assert (
+            "name" in vals
+        ), f"Name missing in vals to create relation type. Vals: {vals}."
+
+        assert (
+            "name" in vals
+        ), f"Name_inverse missing in vals to create relation type. Vals: {vals}."
+
         new_type = self.type_model.create(vals)
-        self.assertTrue(new_type, msg="No relation type created with vals %s." % vals)
+        self.assertTrue(new_type, msg=f"No relation type created with vals {vals}.")
         selection_types = self.selection_model.search([("type_id", "=", new_type.id)])
         for st in selection_types:
             if st.is_inverse:

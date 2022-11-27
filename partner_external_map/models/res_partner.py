@@ -39,10 +39,7 @@ class ResPartner(models.Model):
         for key, value in replace.items():
             if not isinstance(value, str):
                 # for latitude and longitude which are floats
-                if isinstance(value, float):
-                    value = "%.5f" % value
-                else:
-                    value = ""
+                value = "%.5f" % value if isinstance(value, float) else ""
             url = url.replace(key, value)
         logger.debug("Final URL: %s", url)
         return url
@@ -64,17 +61,17 @@ class ResPartner(models.Model):
                     "{LONGITUDE}": self.partner_longitude,
                 },
             )
-        else:
-            if not map_website.address_url:
-                raise UserError(
-                    _(
-                        "Missing parameter 'URL that uses the address' "
-                        "for map website '%s'."
-                    )
-                    % map_website.name
-                )
+        elif map_website.address_url:
             url = self._prepare_url(
                 map_website.address_url, {"{ADDRESS}": self._address_as_string()}
+            )
+        else:
+            raise UserError(
+                _(
+                    "Missing parameter 'URL that uses the address' "
+                    "for map website '%s'."
+                )
+                % map_website.name
             )
         return {
             "type": "ir.actions.act_url",
@@ -116,21 +113,21 @@ class ResPartner(models.Model):
                     "{DEST_LONGITUDE}": self.partner_longitude,
                 },
             )
-        else:
-            if not map_website.route_address_url:
-                raise UserError(
-                    _(
-                        "Missing route URL that uses the addresses "
-                        "for the map website '%s'"
-                    )
-                    % map_website.name
-                )
+        elif map_website.route_address_url:
             url = self._prepare_url(
                 map_website.route_address_url,
                 {
                     "{START_ADDRESS}": start_partner._address_as_string(),
                     "{DEST_ADDRESS}": self._address_as_string(),
                 },
+            )
+        else:
+            raise UserError(
+                _(
+                    "Missing route URL that uses the addresses "
+                    "for the map website '%s'"
+                )
+                % map_website.name
             )
         return {
             "type": "ir.actions.act_url",

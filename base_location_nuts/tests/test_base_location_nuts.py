@@ -78,16 +78,15 @@ class TestBaseLocationNuts(common.SavepointCase):
             self.importer._download_nuts(url_base="http://ec.europa.eu/_404")
 
     def create_new_parent(self, orig_parent):
-        new_parent = self.nuts_model.create(
+        return self.nuts_model.create(
             {
                 "level": orig_parent.level,
-                "code": "NEW" + orig_parent.code,
+                "code": f"NEW{orig_parent.code}",
                 "name": "New parent",
                 "country_id": orig_parent.country_id.id,
                 "not_updatable": False,
             }
         )
-        return new_parent
 
     def test_no_update(self):
         # Update a NUTS field

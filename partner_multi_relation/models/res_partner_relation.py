@@ -90,8 +90,8 @@ class ResPartnerRelation(models.Model):
         """
         for record in self:
             assert side in ["left", "right"]
-            ptype = getattr(record.type_id, "contact_type_%s" % side)
-            partner = getattr(record, "%s_partner_id" % side)
+            ptype = getattr(record.type_id, f"contact_type_{side}")
+            partner = getattr(record, f"{side}_partner_id")
             if (ptype == "c" and not partner.is_company) or (
                 ptype == "p" and partner.is_company
             ):
@@ -99,7 +99,7 @@ class ResPartnerRelation(models.Model):
                     _("The %s partner is not applicable for this " "relation type.")
                     % side
                 )
-            category = getattr(record.type_id, "partner_category_%s" % side)
+            category = getattr(record.type_id, f"partner_category_{side}")
             if category and category.id not in partner.category_id.ids:
                 raise ValidationError(
                     _("The %s partner does not have category %s.")
@@ -113,11 +113,12 @@ class ResPartnerRelation(models.Model):
         :raises ValidationError: When constraint is violated
         """
         for record in self:
-            if record.left_partner_id == record.right_partner_id:
-                if not (record.type_id and record.type_id.allow_self):
-                    raise ValidationError(
-                        _("Partners cannot have a relation with themselves.")
-                    )
+            if record.left_partner_id == record.right_partner_id and not (
+                record.type_id and record.type_id.allow_self
+            ):
+                raise ValidationError(
+                    _("Partners cannot have a relation with themselves.")
+                )
 
     @api.constrains(
         "left_partner_id", "type_id", "right_partner_id", "date_start", "date_end"

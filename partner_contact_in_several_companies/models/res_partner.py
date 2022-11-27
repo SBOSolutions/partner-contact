@@ -41,11 +41,11 @@ class ResPartner(models.Model):
         Actually, is easier to override a dictionary value to indicate it
         should be ignored...
         """
-        if mode != "search" and "search_show_all_positions" in self.env.context:
-            result = self.with_context(search_show_all_positions={"is_set": False})
-        else:
-            result = self
-        return result
+        return (
+            self.with_context(search_show_all_positions={"is_set": False})
+            if mode != "search" and "search_show_all_positions" in self.env.context
+            else self
+        )
 
     @api.model
     def search(self, args, offset=0, limit=None, order=None, count=False):
@@ -123,8 +123,9 @@ class ResPartner(models.Model):
         if self.env.context.get("__update_contact_lock"):
             return
         contact_fields = self._contact_fields()
-        contact_vals = {field: vals[field] for field in contact_fields if field in vals}
-        if contact_vals:
+        if contact_vals := {
+            field: vals[field] for field in contact_fields if field in vals
+        }:
             self.with_context(__update_contact_lock=True).write(contact_vals)
 
     def _fields_sync(self, update_values):

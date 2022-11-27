@@ -21,15 +21,14 @@ class ResPartner(models.Model):
             same_email_partner_id = False
             if partner.email and partner.email.strip():
                 partner_email = partner.email.strip().lower()
-                domain = [("email", "=ilike", "%" + partner_email + "%")]
+                domain = [("email", "=ilike", f"%{partner_email}%")]
                 if partner.company_id:
                     domain += [
                         "|",
                         ("company_id", "=", False),
                         ("company_id", "=", partner.company_id.id),
                     ]
-                partner_id = partner._origin.id
-                if partner_id:
+                if partner_id := partner._origin.id:
                     domain += [
                         ("id", "!=", partner_id),
                         "!",

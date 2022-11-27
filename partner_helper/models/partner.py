@@ -9,16 +9,15 @@ def split_char(char, output_number, size):
     words = char.split(" ")
     result = []
     word = words.pop(0)
-    for index in range(0, output_number):
+    for index in range(output_number):
         result.append(word)
         word = ""
         while len(words) > 0:
             word = words.pop(0)
-            if len(result[index] + " %s" % word) > size:
+            if len(f"{result[index]} {word}") > size:
                 break
-            else:
-                result[index] += " %s" % word
-                word = ""
+            result[index] += f" {word}"
+            word = ""
     return result
 
 
@@ -38,11 +37,11 @@ class ResPartner(models.Model):
         street = self.street or ""
         street2 = self.street2 or ""
         if len(street) <= max_size and len(street2) <= max_size:
-            result = ["" for i in range(0, output_number)]
+            result = ["" for _ in range(output_number)]
             result[0] = street
             result[1] = street2
             return result
         elif len(street) <= max_size:
             return [street] + split_char(street2, output_number - 1, max_size)
         else:
-            return split_char("{} {}".format(street, street2), output_number, max_size)
+            return split_char(f"{street} {street2}", output_number, max_size)
